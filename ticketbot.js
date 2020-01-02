@@ -35,7 +35,6 @@ async function check_timer (){
     const acceptable = now + 39900;
     if (endsAt < acceptable) {
       console.log("buy a box");
-      //buy a box
       transact();
     } else {
       console.log("don't buy a box");
