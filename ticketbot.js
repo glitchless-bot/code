@@ -24,6 +24,12 @@ const game_contract = "TWjkoz18Y48SgWoxEeGG11ezCCzee8wo1A";
 // my referral, if you wish to thank me leave this here, if not, change it
 const referrer = "0x7072697a00000000000000000000000000000000000000000000000000000000";
 
+// retry settings
+var data_retries = 0;
+var data_max_retries = 3;
+var tx_retries = 0;
+var tx_max_retries = 3;
+
 async function check_timer (){
   try {
     let contract = await tronWeb.contract().at(game_contract);
@@ -33,11 +39,20 @@ async function check_timer (){
     now = parseInt(date.getTime() / 1000);
     // set our acceptable endtime as 11 hours and 5 minutes in seconds in the future
     const acceptable = now + 39900;
-    if (endsAt < acceptable) {
-      console.log("buy a box");
-      transact();
+    if ((endsAt > 1577836800) && (endsAt < 1893456000)) {
+      if (endsAt < acceptable) {
+        console.log("buy a box");
+        transact();
+      } else {
+          console.log("don't buy a box");
+      }
+    // retry if endsAt wasn't retrieved properly. sometimes api calls fail
     } else {
-      console.log("don't buy a box");
+        if(data_retries < data_max_retries) {
+          data_retries++;
+          console.log("retrying data");
+          check_timer();
+        }
     }
   }
   catch(err) {
@@ -49,15 +64,24 @@ async function transact() {
   try {
     let contract = await tronWeb.contract().at(game_contract);
     let result = await contract.buyTickets(referrer).send({
-    feeLimit:200000000,
-    callValue:25000000,
-    shouldPollResponse:false
+      feeLimit:200000000,
+      //this value is in millions and equals 25 trx
+      callValue:25000000,
+      shouldPollResponse:false
     });
-    console.log("tx result: " + result);	
+    console.log("tx result: " + result);
+    //check if we got a valid tx id, and retry if we didn't
+    if (result.length !== 64) {
+      if(tx_retries < tx_max_retries) {
+        tx_retries++;
+        console.log("retrying tx");
+        transact();
+      }
+    }
   }
   catch(err) {
     console.log(err);
   }
-} 
+}
 
 check_timer();
