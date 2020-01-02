@@ -33,7 +33,6 @@ async function check_timer (){
     now = parseInt(date.getTime() / 1000);
     // set our acceptable endtime as 11 hours and 5 minutes in seconds in the future
     const acceptable = now + 39900;
-    //const acceptable = 99999999999;
     if (endsAt < acceptable) {
       console.log("buy a box");
       //buy a box
