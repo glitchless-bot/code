@@ -9,7 +9,7 @@ const HttpProvider = TronWeb.providers.HttpProvider;
 const fullNode = 'https://api.trongrid.io';
 const solidityNode = 'https://api.trongrid.io';
 const eventServer = 'https://api.trongrid.io';
-const privateKey = 'your private key here';
+const privateKey = 'YOUR_PRIVATE_KEY_HERE';
 
 const tronWeb = new TronWeb(
   fullNode,
@@ -19,20 +19,21 @@ const tronWeb = new TronWeb(
 );
 
 // the just.game contract
-var game_contract = "TWjkoz18Y48SgWoxEeGG11ezCCzee8wo1A";
+const game_contract = "TWjkoz18Y48SgWoxEeGG11ezCCzee8wo1A";
 
-async function runme (){
+// my referral, if you wish to thank me leave this here, if not, change it
+const referrer = "0x7072697a00000000000000000000000000000000000000000000000000000000";
+
+async function check_timer (){
   try {
     let contract = await tronWeb.contract().at(game_contract);
     let currentValue = await contract.currentRoundData().call();
-    var endsAt = currentValue.endsAt.toString();
-    console.log("game ends at: " + endsAt);
+    const endsAt = currentValue.endsAt.toString();
     const date = new Date();
     now = parseInt(date.getTime() / 1000);
-    console.log("current time is: " + now );
     // set our acceptable endtime as 11 hours and 5 minutes in seconds in the future
-    acceptable = now + 39900;
-    console.log("acceptable time is: " + acceptable);
+    const acceptable = now + 39900;
+    //const acceptable = 99999999999;
     if (endsAt < acceptable) {
       console.log("buy a box");
       //buy a box
@@ -49,18 +50,16 @@ async function runme (){
 async function transact() {
   try {
     let contract = await tronWeb.contract().at(game_contract);
-    var referrer = "0x7072697a00000000000000000000000000000000000000000000000000000000";
     let result = await contract.buyTickets(referrer).send({
     feeLimit:200000000,
     callValue:25000000,
     shouldPollResponse:false
     });
-    console.log("result: " + result);	
+    console.log("tx result: " + result);	
   }
   catch(err) {
     console.log(err);
   }
 } 
 
-runme();
-
+check_timer();
